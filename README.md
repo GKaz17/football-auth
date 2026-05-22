@@ -1,15 +1,63 @@
 # Football Formation Authentication System
 
-A visual-password authentication prototype where users register and log in by arranging 10 outfield football players on a pitch.
+## Overview
 
-The project is separate from the Pass It On bartering app and uses its own frontend, backend, and database.
+This is a creative authentication system built with the MERN stack. Users register and log in using a football formation as a visual password.
+
+The goalkeeper is fixed as player `1`. The user arranges the 10 outfield players, numbered `2` to `11`, on the pitch. During login, the user recreates the same formation. If the entered formation matches the saved formation within a tolerance radius, access is granted.
+
+## Demo Video
+
+[Google Drive demo video](PASTE_GOOGLE_DRIVE_LINK_HERE)
+
+## Creative Authentication Method
+
+This system adds a visual authentication step to a normal username, email, and password login.
+
+Registration:
+
+- The user enters account details.
+- The user chooses or creates a football formation.
+- The 10 outfield player coordinates are saved as the visual password.
+
+Login:
+
+- The user enters their username/email and password.
+- The user recreates the saved football formation.
+- The backend compares the login coordinates against the saved coordinates.
+- If the password is correct and all 10 player positions match within tolerance, the user is authenticated.
+
+## Core Requirements Covered
+
+- User registration and login
+- Password hashing with bcrypt
+- JWT token-based authentication
+- Creative visual authentication using football formations
+- React frontend
+- Node.js and Express backend
+- MongoDB database integration with Mongoose
+- Local file database fallback for testing when MongoDB Atlas is unavailable
 
 ## Tech Stack
 
 - Frontend: React, Vite, React Bootstrap, CSS
 - Backend: Node.js, Express.js
 - Database: MongoDB with Mongoose
-- Auth: bcrypt password hashing and JWT tokens
+- Authentication: bcrypt and JWT
+
+## How The Formation Matching Works
+
+The pitch uses a stable `720 x 460` coordinate system.
+
+Each outfield player has an `{ x, y }` position. During login, the backend compares each saved player coordinate with the matching login coordinate.
+
+The system uses a tolerance radius of `30`, so the user does not need to click the exact same pixel.
+
+```js
+distance = Math.sqrt((loginX - savedX) ** 2 + (loginY - savedY) ** 2)
+```
+
+If all 10 outfield players are within the tolerance radius, the formation is accepted.
 
 ## Project Structure
 
@@ -18,51 +66,58 @@ football-auth/
   frontend/
     src/
       components/
+      data/
       pages/
   backend/
     Models/
     Routes/
+    data/
     middleware/
     utils/
 ```
 
-## Coordinate System
+## Setup Instructions
 
-Formation points are stored in a stable virtual pitch size of `720 x 460`, regardless of the browser size.
-
-The backend compares each numbered player against the same numbered saved player with a default tolerance of `30` coordinate units.
-
-## Setup
-
-1. Install backend dependencies:
+Install backend dependencies:
 
 ```bash
 cd backend
 npm install
 ```
 
-2. Create `backend/.env` from `backend/.env.example` and set `MONGO_URI` and `JWT_SECRET`.
+Create `backend/.env`:
 
-3. Install frontend dependencies:
+```env
+PORT=5000
+MONGO_URI=your_mongodb_connection_string
+JWT_SECRET=your_secret_key
+CLIENT_ORIGIN=http://localhost:5173
+FORMATION_TOLERANCE=30
+USE_FILE_DB=false
+```
+
+If MongoDB Atlas is blocked during local testing, set:
+
+```env
+USE_FILE_DB=true
+```
+
+Start the backend:
+
+```bash
+npm run dev
+```
+
+Install frontend dependencies:
 
 ```bash
 cd ../frontend
 npm install
 ```
 
-4. Create `frontend/.env` from `frontend/.env.example` if your API is not on `http://localhost:5000`.
-
-5. Start the backend:
+Start the frontend:
 
 ```bash
-cd ../backend
-npm run dev
-```
-
-6. Start the frontend:
-
-```bash
-cd ../frontend
 npm run dev
 ```
 
@@ -70,24 +125,17 @@ npm run dev
 
 | Method | Route | Description |
 | --- | --- | --- |
-| `POST` | `/api/auth/register` | Save user credentials and formation |
-| `POST` | `/api/auth/login` | Verify credentials and formation |
-| `GET` | `/api/auth/me` | Return the authenticated user |
+| `POST` | `/api/auth/register` | Saves user credentials and formation |
+| `POST` | `/api/auth/login` | Verifies credentials and formation |
+| `GET` | `/api/auth/me` | Returns the authenticated user using the JWT token |
 
-## Formation Payload Example
+## Demo Notes
 
-```json
-[
-  { "x": 120, "y": 340 },
-  { "x": 200, "y": 280 },
-  { "x": 310, "y": 280 },
-  { "x": 420, "y": 280 },
-  { "x": 200, "y": 200 },
-  { "x": 310, "y": 180 },
-  { "x": 420, "y": 200 },
-  { "x": 220, "y": 120 },
-  { "x": 310, "y": 100 },
-  { "x": 400, "y": 120 }
-]
+For a simple demo, choose the same formation template during registration and login, such as `4-3-3 Holding`.
+
+If `USE_FILE_DB=true`, registered users are stored locally in:
+
+```text
+backend/data/users.json
 ```
 

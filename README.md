@@ -8,7 +8,10 @@ The goalkeeper is fixed as player `1`. The user arranges the 10 outfield players
 
 ## Demo Video
 
-[Google Drive demo video](PASTE_GOOGLE_DRIVE_LINK_HERE)
+[Google Drive demo video]https://drive.google.com/file/d/1WsUSdCjFvHtMbnE4VnMS_haXnqIzf3wG/view?usp=sharing
+
+## Research
+https://docs.google.com/document/d/1TJKJbku6cf592QrorZFxKFlFcH0MRhWyIE8u_Wn7XoQ/edit?usp=sharing
 
 ## Creative Authentication Method
 

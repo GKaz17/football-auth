@@ -8,9 +8,10 @@ The goalkeeper is fixed as player `1`. The user arranges the 10 outfield players
 
 ## Demo Video
 
-[Google Drive demo video]https://drive.google.com/file/d/1WsUSdCjFvHtMbnE4VnMS_haXnqIzf3wG/view?usp=sharing
+[Google Drive demo video](https://drive.google.com/file/d/1WsUSdCjFvHtMbnE4VnMS_haXnqIzf3wG/view?usp=sharing)
 
 ## Research
+
 https://docs.google.com/document/d/1TJKJbku6cf592QrorZFxKFlFcH0MRhWyIE8u_Wn7XoQ/edit?usp=sharing
 
 ## Creative Authentication Method
@@ -142,3 +143,27 @@ If `USE_FILE_DB=true`, registered users are stored locally in:
 backend/data/users.json
 ```
 
+## Development Support Log
+
+This project was developed with Codex support during the final build and presentation-preparation phase.
+
+Support covered:
+
+- React/Vite frontend setup and explanation.
+- Node.js/Express backend setup and explanation.
+- Register, login, and current-user API routes.
+- bcrypt password hashing.
+- JWT token creation, browser localStorage session handling, and protected `/me` verification.
+- Football pitch coordinate storage and tolerance-based formation matching.
+- Fixed goalkeeper logic and outfield player numbering from 2 to 11.
+- Formation templates to make authentication repeatable during the demo.
+- CTA feedback fixes for registration and login usability.
+- Dashboard page to show successful authentication.
+- MongoDB Atlas troubleshooting and local file database fallback for demo reliability.
+- README updates for assessment submission.
+
+Key clarification: the React frontend calls the Express backend with `fetch`; the backend does not call the frontend.
+
+GitHub/version-control note: GitHub Desktop was used for repository publishing. Secrets and local runtime data should remain ignored: `.env`, `node_modules/`, `dist/`, and `backend/data/users.json`.
+
+A fuller project-context note is stored in the Jarvis Knowledge Hub Drive reference packet for DV200.

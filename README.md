@@ -82,11 +82,10 @@ football-auth/
 
 ## Setup Instructions
 
-Install backend dependencies:
+Use Node.js 22. From the repository root, install both applications:
 
 ```bash
-cd backend
-npm install
+npm run setup
 ```
 
 Create `backend/.env`:
@@ -100,7 +99,17 @@ FORMATION_TOLERANCE=30
 USE_FILE_DB=false
 ```
 
-If MongoDB Atlas is blocked during local testing, set:
+For Atlas, copy the current connection string from the cluster's **Connect > Drivers** panel, include the `football-auth` database name, and use a database user with read/write access. Resume the cluster if it is paused and add your current public IP under **Network Access**. Percent-encode special characters in the database password. Keep the real URI in `.env`, which Git ignores.
+
+Check the actual MongoDB connection before starting the app:
+
+```bash
+npm run check:db
+```
+
+This command always tests MongoDB, even when the local demo fallback is enabled. It prints a database ping result without exposing the URI or password.
+
+If Atlas is unavailable and you only need an offline local demo, set:
 
 ```env
 USE_FILE_DB=true
@@ -112,18 +121,53 @@ Start the backend:
 npm run dev
 ```
 
-Install frontend dependencies:
+In a second terminal at the repository root, start the frontend:
 
 ```bash
-cd ../frontend
-npm install
+npm run dev:frontend
 ```
 
-Start the frontend:
+Open `http://localhost:5173`. Vite forwards `/api` requests to Express on port 5000. In production, React uses the same origin as Express; `VITE_API_URL` can be left blank.
+
+## Heroku Deployment
+
+The root `package.json` and `Procfile` allow Heroku to build the React frontend and run the Express backend in one web dyno. Express serves `frontend/dist`, and listens on Heroku's assigned `PORT`.
+
+1. Push the project to GitHub. Add teammates under the repository's **Settings > Collaborators**.
+2. Create a Heroku app using the Node.js buildpack. Connect `GKaz17/football-auth` under **Deploy > GitHub**, or use the Heroku CLI with this repository.
+3. Under **Settings > Config Vars**, set:
+
+| Variable | Value |
+| --- | --- |
+| `MONGO_URI` | Your current Atlas URI with the `football-auth` database name |
+| `JWT_SECRET` | A new random secret of at least 32 characters |
+| `USE_FILE_DB` | `false` |
+| `NODE_ENV` | `production` |
+| `FORMATION_TOLERANCE` | `30` |
+| `CLIENT_ORIGIN` | Your actual Heroku app URL, including `https://` and without a trailing slash |
+
+Generate a JWT secret locally with `node -e "console.log(require('crypto').randomBytes(48).toString('hex'))"`. Paste it into Heroku Config Vars, never into GitHub. Replace any Atlas password that was previously shared in chat. Do not set `PORT` yourself or use a localhost `VITE_API_URL` for the deployed build.
+
+4. Allow the deployment's outbound traffic in Atlas **Network Access**. Standard Heroku dynos do not have a fixed outbound IP; use a static outbound IP service for a restricted allowlist. If your class uses temporary access from anywhere (`0.0.0.0/0`), use a dedicated database user restricted to `football-auth` and remove the broad rule after the demo.
+5. Deploy `main`, then open `/health`. A working MERN deployment returns `{"status":"ok","database":"mongodb"}`. Test registration, sign out, log in, restart the dyno, and log in again with the same account.
+
+The app refuses to start with file storage in production. Heroku's filesystem is temporary, so `users.json` is only a local demo option. Previous JSON demo accounts are not automatically copied to MongoDB; register them again after switching storage.
+
+Official references: [MongoDB connection troubleshooting](https://www.mongodb.com/docs/atlas/troubleshoot-connection/), [Heroku Node.js deployment](https://devcenter.heroku.com/articles/deploying-nodejs), and [Heroku outbound IP addresses](https://help.heroku.com/VKVCYAQU/why-is-my-app-s-ip-address-being-blocked-by-third-parties).
+
+## Verification
 
 ```bash
-npm run dev
+npm run build
+npm test
+npm start
 ```
+
+The automated tests run a real temporary MongoDB process, verify password hashing, unique accounts, JWT protection and formation matching, and confirm that an account still works after reconnecting and restarting the backend process. They never use your Atlas accounts. The first test run downloads the MongoDB test binary.
+
+GitHub runs these tests and the production build under the repository's **Actions > MERN checks** tab. On Windows, the MongoDB test download is large; the GitHub Linux runner avoids downloading that Windows binary to your laptop.
+
+After building, open `http://localhost:5000` to check the same combined frontend/backend arrangement used on Heroku.
 
 ## API Endpoints
 

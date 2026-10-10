@@ -2,12 +2,16 @@ const bcrypt = require("bcryptjs");
 const crypto = require("crypto");
 const fs = require("fs/promises");
 const path = require("path");
+const mongoose = require("mongoose");
 
 const User = require("../Models/User");
 
 const dataPath = path.join(__dirname, "users.json");
 
 function useFileDatabase() {
+  if (process.env.USE_FILE_DB === "true" && process.env.NODE_ENV === "production") {
+    throw new Error("Local file storage is disabled in production. Set USE_FILE_DB=false and configure MONGO_URI.");
+  }
   return process.env.USE_FILE_DB === "true";
 }
 
@@ -55,6 +59,9 @@ async function findByIdentifier(identifier) {
 
 async function findById(id) {
   if (!useFileDatabase()) {
+    if (!mongoose.isValidObjectId(id)) {
+      return null;
+    }
     return User.findById(id).select("-password -formation");
   }
 

@@ -82,7 +82,7 @@ football-auth/
 
 ## Setup Instructions
 
-Use Node.js 22. From the repository root, install both applications:
+Use Node.js 22.19 or newer in the Node 22 release line. From the repository root, install both applications:
 
 ```bash
 npm run setup
@@ -108,6 +108,10 @@ npm run check:db
 ```
 
 This command always tests MongoDB, even when the local demo fallback is enabled. It prints a database ping result without exposing the URI or password.
+
+The startup commands use `--use-system-ca` so Node also trusts certificates already trusted by the operating system. TLS verification remains enabled.
+
+If the Atlas cluster is running but your local network still returns `querySrv ENOTFOUND` or `ETIMEOUT`, try `MONGO_DNS_SERVERS=8.8.8.8` in `backend/.env`. This only changes DNS resolution inside the Node app. Leave it blank on Heroku so the deployment uses its normal DNS service. A standard connection string copied from Atlas is another option if external DNS servers are blocked.
 
 If Atlas is unavailable and you only need an offline local demo, set:
 
@@ -168,6 +172,8 @@ The automated tests run a real temporary MongoDB process, verify password hashin
 GitHub runs these tests and the production build under the repository's **Actions > MERN checks** tab. On Windows, the MongoDB test download is large; the GitHub Linux runner avoids downloading that Windows binary to your laptop.
 
 After building, open `http://localhost:5000` to check the same combined frontend/backend arrangement used on Heroku.
+
+To verify the configured live Atlas database, run `npm run test:atlas` after building. It creates a unique temporary test account, checks registration, bcrypt storage, login, rejection of an incorrect formation and JWT protection, then restarts the backend and signs in again. It deletes only its generated test account. This check is optional and is not run by GitHub Actions.
 
 ## API Endpoints
 

@@ -4,9 +4,10 @@
   "description": "Express API for football formation visual-password authentication.",
   "main": "server.js",
   "scripts": {
-    "dev": "nodemon server.js",
-    "start": "node server.js",
-    "check:db": "node scripts/checkDatabase.js",
+    "dev": "nodemon --exec \"node --use-system-ca\" server.js",
+    "start": "node --use-system-ca server.js",
+    "check:db": "node --use-system-ca scripts/checkDatabase.js",
+    "test:atlas": "node --use-system-ca scripts/smokeTestAtlas.js",
     "test": "node --test --test-concurrency=1 test/*.test.js"
   },
   "dependencies": {

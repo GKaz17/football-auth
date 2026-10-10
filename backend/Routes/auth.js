@@ -11,6 +11,16 @@ const {
 
 const router = express.Router();
 
+function sendAuthError(res, error) {
+  if (error.code === 11000) {
+    return res.status(409).json({ message: "A user with that email or username already exists." });
+  }
+  if (error.name === "ValidationError") {
+    return res.status(400).json({ message: "Check your account details. Your username must have at least 3 characters." });
+  }
+  return res.status(500).json({ message: "Authentication request failed. Please try again." });
+}
+
 function signToken(user) {
   return jwt.sign(
     {
@@ -56,7 +66,7 @@ router.post("/register", async (req, res) => {
       user: userStore.getSafeUser(user),
     });
   } catch (error) {
-    return res.status(500).json({ message: error.message });
+    return sendAuthError(res, error);
   }
 });
 
@@ -97,18 +107,22 @@ router.post("/login", async (req, res) => {
       user: userStore.getSafeUser(user),
     });
   } catch (error) {
-    return res.status(500).json({ message: error.message });
+    return sendAuthError(res, error);
   }
 });
 
 router.get("/me", requireAuth, async (req, res) => {
-  const user = await userStore.findById(req.user.id);
+  try {
+    const user = await userStore.findById(req.user.id);
 
-  if (!user) {
-    return res.status(404).json({ message: "User not found." });
+    if (!user) {
+      return res.status(404).json({ message: "User not found." });
+    }
+
+    return res.json({ user: userStore.getSafeUser(user) });
+  } catch (error) {
+    return sendAuthError(res, error);
   }
-
-  return res.json({ user: userStore.getSafeUser(user) });
 });
 
 module.exports = router;

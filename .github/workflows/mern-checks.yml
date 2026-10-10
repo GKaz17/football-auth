@@ -1,0 +1,30 @@
+name: MERN checks
+
+on:
+  push:
+    branches: [main, fix/mongodb-heroku]
+  pull_request:
+
+permissions:
+  contents: read
+
+jobs:
+  test-and-build:
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: npm
+          cache-dependency-path: |
+            backend/package-lock.json
+            frontend/package-lock.json
+      - run: npm run setup
+      - run: npm run build --prefix frontend
+      - run: npm test
+      - run: npm run build
+        env:
+          NODE_ENV: production
+      - run: npm audit --omit=dev --prefix backend

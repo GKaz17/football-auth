@@ -1,0 +1,20 @@
+{
+  "name": "football-auth",
+  "version": "1.0.0",
+  "private": true,
+  "description": "Football formation authentication with React, Express and MongoDB.",
+  "engines": {
+    "node": "22.x"
+  },
+  "scripts": {
+    "setup": "npm ci --prefix backend --include=dev && npm ci --prefix frontend --include=dev",
+    "dev": "npm run dev --prefix backend",
+    "dev:frontend": "npm run dev --prefix frontend",
+    "build": "npm ci --prefix backend && npm ci --prefix frontend --include=dev && npm run build --prefix frontend",
+    "heroku-postbuild": "npm run build",
+    "start": "node --use-system-ca backend/server.js",
+    "test": "npm test --prefix backend",
+    "check:db": "npm run check:db --prefix backend",
+    "test:atlas": "npm run test:atlas --prefix backend"
+  }
+}
